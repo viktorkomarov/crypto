@@ -10,12 +10,12 @@ func TestBitsetNth(t *testing.T) {
 	testCases := []struct {
 		desc        string
 		buffer      []byte
-		expectedMap map[int]byte
+		expectedMap map[int]uint64
 	}{
 		{
 			desc:   "all 1",
 			buffer: []byte{255, 255, 255, 255},
-			expectedMap: map[int]byte{
+			expectedMap: map[int]uint64{
 				1:  1,
 				20: 1,
 				10: 1,
@@ -27,7 +27,7 @@ func TestBitsetNth(t *testing.T) {
 		{
 			desc:   "all 0",
 			buffer: []byte{0, 0, 0, 0},
-			expectedMap: map[int]byte{
+			expectedMap: map[int]uint64{
 				1:  0,
 				20: 0,
 				10: 0,
@@ -39,7 +39,7 @@ func TestBitsetNth(t *testing.T) {
 		{
 			desc:   "1 and 0",
 			buffer: []byte{5, 0, 10},
-			expectedMap: map[int]byte{
+			expectedMap: map[int]uint64{
 				0:  1,
 				1:  0,
 				2:  1,
@@ -65,18 +65,18 @@ func TestSetVal(t *testing.T) {
 	testCases := []struct {
 		desc        string
 		buffer      []byte
-		setter      map[int]byte
-		expectedMap map[int]byte
+		setter      map[int]uint64
+		expectedMap map[int]uint64
 	}{
 		{
 			desc:   "#1",
 			buffer: []byte{255},
-			setter: map[int]byte{
+			setter: map[int]uint64{
 				0: 0, 1: 0, 2: 0,
 				3: 0, 5: 0, 6: 0,
 				7: 0,
 			},
-			expectedMap: map[int]byte{
+			expectedMap: map[int]uint64{
 				0: 0, 1: 0, 2: 0,
 				3: 0, 5: 0, 6: 0,
 				7: 0, 4: 1,
@@ -101,17 +101,15 @@ func TestSetVal(t *testing.T) {
 func TestSetNewVal(t *testing.T) {
 	testCases := []struct {
 		desc     string
-		size     int
+		size     uint64
 		setter   []int
-		expected []byte
+		expected int
 	}{
 		{
-			desc:   "48 size",
-			size:   48,
-			setter: []int{48, 59, 64, 72},
-			expected: []byte{
-				0, 0, 0, 0, 0, 0, 1, 8, 1, 1,
-			},
+			desc:     "48 size",
+			size:     48,
+			setter:   []int{48, 59, 64, 72},
+			expected: 72,
 		},
 	}
 	for _, tC := range testCases {
@@ -120,7 +118,7 @@ func TestSetNewVal(t *testing.T) {
 			for _, val := range tC.setter {
 				bits.SetVal(val, 1)
 			}
-			require.Equal(t, tC.expected, bits.Bits())
+			require.Equal(t, tC.expected, bits.Size())
 		})
 	}
 }

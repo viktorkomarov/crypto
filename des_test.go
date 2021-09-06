@@ -6,16 +6,41 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestNewEncoder(t *testing.T) {
+	key := []byte{
+		0b11001000,
+		0b00101100,
+		0b11101010,
+		0b10011110,
+		0b11011001,
+		0b00111101,
+		0b11111011,
+		0b10001111,
+	}
+
+	encoder := NewEncoder(key)
+	expected := []byte{
+		0b00001111,
+		0b00110011,
+		0b01010101,
+		0b10101111,
+		0b01101010,
+		0b11100110,
+		0b11110001,
+	}
+	require.Equal(t, expected, encoder.key.Bits())
+}
+
 func TestKey(t *testing.T) {
 	key := []byte{
-		0b00010011,
-		0b00110100,
-		0b01010111,
-		0b01111001,
-		0b10011011,
-		0b10111100,
-		0b11011111,
-		0b11110001,
+		0b11001000,
+		0b00101100,
+		0b11101010,
+		0b10011110,
+		0b11011001,
+		0b00111101,
+		0b11111011,
+		0b10001111,
 	}
 
 	testCases := []struct {
@@ -27,12 +52,12 @@ func TestKey(t *testing.T) {
 			desc:  "round 1",
 			round: 0,
 			expected: []byte{
-				0b00011011,
-				0b00000010,
-				0b11101111,
-				0b11111100,
-				0b01110000,
-				0b01110010,
+				0b11011000,
+				0b01000000,
+				0b11110111,
+				0b00111111,
+				0b00001110,
+				0b01001110,
 			},
 		},
 		// {

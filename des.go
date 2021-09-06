@@ -8,7 +8,7 @@ func NewEncoder(keySet []byte) Encoder {
 	bitset := BitsetFromBytes(keySet)
 	key := BitsetFromSize(56)
 	for i := 0; i < 56; i++ {
-		key.SetVal(i, bitset.Nth(keyInitTable[i]))
+		key.SetVal(i, bitset.Nth(keyInitTable[i]-1))
 	}
 
 	return Encoder{

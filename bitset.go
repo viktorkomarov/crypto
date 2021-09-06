@@ -1,80 +1,90 @@
 package des
 
+import "encoding/binary"
+
+var byteOrder = binary.BigEndian
+
+const blockSize = 8
+
 type Bitset struct {
+	sz     int
 	buffer []byte
 }
 
-func or1(size int) int {
-	if size/8 == 0 {
-		return 1
+func or1(size uint64) int {
+	if size/64 == 0 {
+		return blockSize
 	}
-	return size / 8
+	return int(size / 64)
 }
 
-func BitsetFromSize(size int) *Bitset {
+func BitsetFromSize(size uint64) *Bitset {
 	return &Bitset{
 		buffer: make([]byte, or1(size)),
 	}
 }
 
 func BitsetFromBytes(bytes []byte) *Bitset {
-	buffer := make([]byte, len(bytes))
-	copy(buffer, bytes)
-	return &Bitset{
-		buffer: buffer,
-	}
-}
-
-func (b *Bitset) Set(bit int) {
-	b.SetVal(bit, 1)
-}
-
-func (b *Bitset) Unset(bit int) {
-	b.SetVal(bit, 0)
-}
-
-func (b *Bitset) Nth(bit int) byte {
-	return (b.buffer[bit/8] >> (bit % 8)) & 1
-}
-
-func (b *Bitset) SetVal(to int, val byte) {
-	appBlock := 0
-	sz := to - b.Size() + 1
-	if sz > 0 {
-		appBlock = or1(sz)
-
-	}
-	for i := 0; i < appBlock; i++ {
-		b.buffer = append(b.buffer, 0)
-	}
-
-	switch val {
-	case 1:
-		b.buffer[to/8] |= (1 << (to % 8))
-	case 0:
-		b.buffer[to/8] &= ^(1 << (to % 8))
-	}
-}
-
-func (b *Bitset) Size() int {
-	return 8 * len(b.buffer)
-}
-
-func (b *Bitset) Subset(from, to int) *Bitset {
-	bits := BitsetFromSize(to - from)
-
-	for ; from < to; from++ {
-		bits.SetVal(from, b.Nth(from))
+	bits := BitsetFromSize(uint64(len(bytes) * 8))
+	for i := range bytes {
+		for j := 0; j < 8; j++ {
+			num := (bytes[i] >> j) & 1
+			bits.SetVal(i*8+j, uint64(num))
+		}
 	}
 
 	return bits
+}
+
+func (b *Bitset) Nth(n int) uint64 {
+	from := n / 64
+	return (byteOrder.Uint64(b.buffer[from:from+blockSize]) >> (n % 64)) & 1
+}
+
+func (b *Bitset) SetVal(to int, val uint64) {
+	appBlock := 0
+	sz := to - b.Size() + 1
+	if sz > 0 {
+		appBlock = or1(uint64(sz))
+
+	}
+	for i := 0; i < appBlock*blockSize; i++ {
+		b.buffer = append(b.buffer, 0)
+	}
+
+	if b.sz < to {
+		b.sz = to
+	}
+
+	from := to / 64
+	num := byteOrder.Uint64(b.buffer[from : from+blockSize])
+	switch val {
+	case 1:
+		num |= (1 << (to % 64))
+	case 0:
+		num &= ^(1 << (to % 64))
+	}
+	byteOrder.PutUint64(b.buffer[from:from+blockSize], num)
+}
+
+func (b *Bitset) Size() int {
+	return b.sz
+}
+
+func (b *Bitset) Subset(from, to int) *Bitset {
+	set := BitsetFromSize(uint64(to - from)) // check from > to
+	for ; from < to; from++ {
+		set.SetVal(from, b.Nth(from))
+	}
+
+	return set
 }
 
 func (b *Bitset) LeftRotate(shift int) *Bitset {
 	shifted := make([]byte, 0)
 	size := b.Size() - 1
 	for i := 0; i < shift; i++ {
-		shifted = append(shifted, b.Nth(size-i))
+		shifted = append(shifted, byte(b.Nth(size-i)))
 	}
 
 	for i := 0; i < size-shift; i++ {
@@ -82,15 +92,16 @@ func (b *Bitset) LeftRotate(shift int) *Bitset {
 	}
 
 	for i, val := range shifted {
-		b.SetVal(i, val)
+		b.SetVal(i, uint64(val))
 	}
 
 	return b
 }
 
 func (b *Bitset) Append(bits *Bitset) {
+	sz := b.Size()
 	for i := 0; i < bits.Size(); i++ {
-		b.SetVal(b.Size()+i, bits.Nth(i))
+		b.SetVal(sz+i, bits.Nth(i))
 	}
 }
 
