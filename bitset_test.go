@@ -171,12 +171,21 @@ func TestLeftRotate(t *testing.T) {
 				0b11101100,
 			},
 		},
+		{
+			desc: "it works#3",
+			args: []byte{
+				0b11001000,
+			},
+			shift: 2,
+			expected: []byte{
+				0b00100011,
+			},
+		},
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
 			bits := BitsetFromBytes(tC.args)
-			bits.LeftRotate(tC.shift)
-			require.Equal(t, tC.expected, bits.Bits())
+			require.Equal(t, tC.expected, bits.LeftRotate(tC.shift).Bits())
 		})
 	}
 }

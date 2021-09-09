@@ -1,5 +1,10 @@
 package des
 
+import (
+	"fmt"
+	"strings"
+)
+
 const byteSize = 8
 
 func or1(size int) int {
@@ -19,7 +24,7 @@ type Bitset struct {
 func BitsetFromSize(size int) *Bitset {
 	return &Bitset{
 		sz:     size,
-		buffer: make([]byte, or1(size-1)),
+		buffer: make([]byte, or1(size)),
 	}
 }
 
@@ -69,35 +74,47 @@ func (b *Bitset) cap() int {
 
 func (b *Bitset) Subset(from, to int) *Bitset {
 	set := BitsetFromSize(to - from) // check from > to
+	i := 0
 	for ; from < to; from++ {
-		set.SetVal(from, b.Nth(from))
+		set.SetVal(i, b.Nth(from))
+		i += 1
 	}
 
 	return set
 }
 
-func (b *Bitset) LeftRotate(shift int) {
+func (b *Bitset) LeftRotate(shift int) *Bitset {
+	shift %= b.sz
+	bits := BitsetFromSize(b.sz)
+
 	shifted := make([]byte, 0)
 	for i := 0; i < shift; i++ {
 		shifted = append(shifted, b.Nth(i))
 	}
 
 	for i := 0; i < b.sz-shift; i++ {
-		b.SetVal(i, b.Nth(i+1))
+		bits.SetVal(i, b.Nth(i+shift))
 	}
 
 	for i := 0; i < shift; i++ {
-		b.SetVal(b.sz-shift+i, shifted[i])
+		bits.SetVal(b.sz-shift+i, shifted[i])
 	}
-}
 
-func (b *Bitset) Append(bits *Bitset) {
-	sz := b.Size()
-	for i := 0; i < bits.Size(); i++ {
-		b.SetVal(sz+i, bits.Nth(i))
-	}
+	return bits
 }
 
 func (b *Bitset) Bits() []byte {
-	return b.buffer
+	bits := make([]byte, b.sz/8)
+	copy(bits, b.buffer)
+	return bits
+}
+
+func (b *Bitset) String() string {
+	var builder strings.Builder
+
+	for i := 0; i < b.sz; i++ {
+		builder.WriteString(fmt.Sprintf("%d", b.Nth(i)))
+	}
+
+	return builder.String()
 }
