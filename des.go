@@ -1,7 +1,5 @@
 package des
 
-import "fmt"
-
 type Encoder struct {
 	key *Bitset
 }
@@ -42,6 +40,5 @@ func (e Encoder) round(r int) []byte {
 		}
 	}
 
-	fmt.Printf("%s\n", result)
 	return result.Bits()
 }
