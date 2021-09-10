@@ -40,6 +40,14 @@ func (b *Bitset) Nth(n int) byte {
 	return (num >> (byteSize - (n % byteSize) - 1)) & 1
 }
 
+func (b *Bitset) nthOr0(n int) byte {
+	if n >= b.Size() {
+		return 0
+	}
+
+	return b.Nth(n)
+}
+
 func (b *Bitset) SetVal(to int, val byte) {
 	if b.sz < to {
 		b.sz = to
@@ -117,4 +125,18 @@ func (b *Bitset) String() string {
 	}
 
 	return builder.String()
+}
+
+func (b *Bitset) XOR(bits *Bitset) *Bitset {
+	max, min := b, bits
+	if max.Size() < min.Size() {
+		max, min = min, max
+	}
+
+	result := BitsetFromSize(max.Size())
+	for i := 0; i < max.Size(); i++ {
+		result.SetVal(i, (max.Nth(i) ^ min.nthOr0(i)))
+	}
+
+	return result
 }

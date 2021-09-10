@@ -16,10 +16,40 @@ func NewEncoder(keySet []byte) Encoder {
 	}
 }
 
-func (e Encoder) round(r int) []byte {
-	shiftOne := map[int]bool{1: true, 8: true, 15: true}
-	shift := 1
-	for i := 1; i < r; i++ {
+func (e Encoder) Encode(b []byte) []byte {
+	msg := BitsetFromBytes(b)
+	bits := BitsetFromSize(64)
+	for i := range initPermutationTable {
+		bits.SetVal(i, msg.Nth(initPermutationTable[i]-1))
+	}
+
+	l, r := bits.Subset(0, 32), bits.Subset(32, 64)
+	for i := 0; i < 16; i++ {
+		l, r = r, l.XOR(e.f(r, e.round(i)))
+	}
+	l, r = r, l
+
+	result := BitsetFromSize(64)
+	for i := range initPermutatuinReverseTable {
+		from := initPermutatuinReverseTable[i] - 1
+		if from < 32 {
+			result.SetVal(i, l.Nth(from))
+		} else {
+			result.SetVal(i, r.Nth(from-32))
+		}
+	}
+
+	return result.Bits()
+}
+
+func (e Encoder) f(r, ki *Bitset) *Bitset {
+	return nil
+}
+
+func (e Encoder) round(r int) *Bitset {
+	shiftOne := map[int]bool{0: true, 1: true, 8: true, 15: true}
+	shift := 0
+	for i := 0; i <= r; i++ {
 		if shiftOne[i] {
 			shift += 1
 		} else {
@@ -40,5 +70,5 @@ func (e Encoder) round(r int) []byte {
 		}
 	}
 
-	return result.Bits()
+	return result
 }
