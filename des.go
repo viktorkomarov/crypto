@@ -43,7 +43,11 @@ func (e Encoder) Encode(b []byte) []byte {
 }
 
 func (e Encoder) f(r, ki *Bitset) *Bitset {
-	return nil
+	extendedR := BitsetFromSize(48)
+	for i := range eBitSelection {
+		extendedR.SetVal(i, r.Nth(eBitSelection[i]-1))
+	}
+	xor := ki.XOR(extendedR)
 }
 
 func (e Encoder) round(r int) *Bitset {
