@@ -189,3 +189,90 @@ func TestLeftRotate(t *testing.T) {
 		})
 	}
 }
+
+func TestXOR(t *testing.T) {
+	testCases := []struct {
+		desc           string
+		leftOperand    func() *Bitset
+		rightOperand   func() *Bitset
+		expectedResult func() *Bitset
+	}{
+		{
+			desc: "all 0 and 1",
+			leftOperand: func() *Bitset {
+				bits := BitsetFromSize(47)
+				for i := 0; i < 47; i++ {
+					bits.SetVal(i, 0)
+				}
+				return bits
+			},
+			rightOperand: func() *Bitset {
+				bits := BitsetFromSize(149)
+				for i := 0; i < 149; i++ {
+					bits.SetVal(i, 1)
+				}
+				return bits
+			},
+			expectedResult: func() *Bitset {
+				bits := BitsetFromSize(149)
+				for i := 0; i < 149; i++ {
+					bits.SetVal(i, 1)
+				}
+				return bits
+			},
+		},
+		{
+			desc: "it works#1",
+			leftOperand: func() *Bitset {
+				bits := BitsetFromSize(10)
+				for i := 0; i < 10; i++ {
+					bits.SetVal(i, byte(i%2))
+				}
+				return bits
+			},
+			rightOperand: func() *Bitset {
+				bits := BitsetFromSize(10)
+				for i := 0; i < 10; i++ {
+					bits.SetVal(i, byte(i%2))
+				}
+				return bits
+			},
+			expectedResult: func() *Bitset {
+				return BitsetFromSize(10)
+			},
+		},
+		{
+			desc: "it works#2",
+			leftOperand: func() *Bitset {
+				bits := BitsetFromSize(10)
+				for i := 0; i < 10; i++ {
+					bits.SetVal(i, byte(i%2))
+				}
+				return bits
+			},
+			rightOperand: func() *Bitset {
+				bits := BitsetFromSize(10)
+				for i := 0; i < 10; i++ {
+					if i%2 == 0 {
+						bits.SetVal(i, 1)
+					} else {
+						bits.SetVal(i, 0)
+					}
+				}
+				return bits
+			},
+			expectedResult: func() *Bitset {
+				bits := BitsetFromSize(10)
+				for i := 0; i < 10; i++ {
+					bits.SetVal(i, 1)
+				}
+				return bits
+			},
+		},
+	}
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			require.Equal(t, tC.expectedResult().Bits(), tC.leftOperand().XOR(tC.rightOperand()).Bits())
+		})
+	}
+}

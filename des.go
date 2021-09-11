@@ -42,12 +42,38 @@ func (e Encoder) Encode(b []byte) []byte {
 	return result.Bits()
 }
 
+func buildByte(ns ...byte) byte {
+	if len(ns) > 7 {
+		return 0
+	}
+
+	var b byte
+	for i := 0; i < len(ns); i++ {
+		b |= (ns[i] << i)
+	}
+	return b
+}
+
 func (e Encoder) f(r, ki *Bitset) *Bitset {
 	extendedR := BitsetFromSize(48)
 	for i := range eBitSelection {
 		extendedR.SetVal(i, r.Nth(eBitSelection[i]-1))
 	}
 	xor := ki.XOR(extendedR)
+
+	sboxs := make([]byte, 0, 8)
+	for i := 0; i < 8; i++ {
+		s := xor.Subset(i*6, i*6+6)
+		l, c := buildByte(s.Nth(0), s.Nth(5)), buildByte(s.Subset(1, 5).Bits()...)
+		sboxs = append(sboxs, byte(sTables[i][l][c]))
+	}
+
+	sBoxed := BitsetFromBytes(sboxs)
+	result := BitsetFromSize(32)
+	for i := range pBitMutation {
+		result.SetVal(i, sBoxed.Nth(pBitMutation[i]-1))
+	}
+	return result
 }
 
 func (e Encoder) round(r int) *Bitset {
