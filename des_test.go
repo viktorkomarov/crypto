@@ -125,3 +125,89 @@ func TestKeyRounds(t *testing.T) {
 		})
 	}
 }
+
+func TestBuildByte(t *testing.T) {
+	testCases := []struct {
+		desc     string
+		args     []byte
+		expected byte
+	}{
+		{
+			desc:     "0 bytes",
+			args:     []byte{},
+			expected: 0,
+		},
+		{
+			desc:     "1",
+			args:     []byte{1},
+			expected: 1,
+		},
+		{
+			desc:     "10",
+			args:     []byte{1, 0},
+			expected: 2,
+		},
+		{
+			desc:     "01",
+			args:     []byte{0, 1},
+			expected: 1,
+		},
+		{
+			desc:     "1001",
+			args:     []byte{1, 0, 0, 1},
+			expected: 9,
+		},
+	}
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			require.Equal(t, tC.expected, buildByte(tC.args...))
+		})
+	}
+}
+
+func TestF(t *testing.T) {
+	testCases := []struct {
+		desc     string
+		r        func() *Bitset
+		k        func() *Bitset
+		expected []byte
+	}{
+		{
+			desc: "it works#1",
+			r: func() *Bitset {
+				bits := []byte{
+					0b11110000,
+					0b10101010,
+					0b11110000,
+					0b10101010,
+				}
+
+				return BitsetFromBytes(bits)
+			},
+			k: func() *Bitset {
+				bits := []byte{
+					0b00011011,
+					0b00000010,
+					0b11101111,
+					0b11111100,
+					0b01110000,
+					0b01110010,
+				}
+
+				return BitsetFromBytes(bits)
+			},
+			expected: []byte{
+				0b00100011,
+				0b01001010,
+				0b10101001,
+				0b10111011,
+			},
+		},
+	}
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			enc := Encoder{}
+			require.Equal(t, tC.expected, enc.f(tC.r(), tC.k()).Bits())
+		})
+	}
+}

@@ -49,7 +49,7 @@ func buildByte(ns ...byte) byte {
 
 	var b byte
 	for i := 0; i < len(ns); i++ {
-		b |= (ns[i] << i)
+		b |= (ns[i] << (len(ns) - i - 1))
 	}
 	return b
 }
@@ -59,16 +59,25 @@ func (e Encoder) f(r, ki *Bitset) *Bitset {
 	for i := range eBitSelection {
 		extendedR.SetVal(i, r.Nth(eBitSelection[i]-1))
 	}
-	xor := ki.XOR(extendedR)
+	ki = ki.XOR(extendedR)
 
-	sboxs := make([]byte, 0, 8)
+	sBoxed := BitsetFromSize(32)
 	for i := 0; i < 8; i++ {
-		s := xor.Subset(i*6, i*6+6)
-		l, c := buildByte(s.Nth(0), s.Nth(5)), buildByte(s.Subset(1, 5).Bits()...)
-		sboxs = append(sboxs, byte(sTables[i][l][c]))
+		s := ki.Subset(i*6, i*6+6)
+		l := buildByte(s.Nth(0), s.Nth(5))
+
+		bits := make([]byte, 4)
+		for i := range bits {
+			bits[i] = s.Nth(i + 1)
+		}
+		c := buildByte(bits...)
+
+		val := byte(sTables[i][l][c])
+		for j := 0; j < 4; j++ {
+			sBoxed.SetVal(i*4+j, (val>>(3-j))&1)
+		}
 	}
 
-	sBoxed := BitsetFromBytes(sboxs)
 	result := BitsetFromSize(32)
 	for i := range pBitMutation {
 		result.SetVal(i, sBoxed.Nth(pBitMutation[i]-1))
