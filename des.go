@@ -1,22 +1,22 @@
 package des
 
-type Encoder struct {
+type Cipher struct {
 	key *Bitset
 }
 
-func NewEncoder(keySet []byte) Encoder {
+func NewCipher(keySet []byte) Cipher {
 	bitset := BitsetFromBytes(keySet)
 	key := BitsetFromSize(56)
 	for i := 0; i < 56; i++ {
 		key.SetVal(i, bitset.Nth(keyInitTable[i]-1))
 	}
 
-	return Encoder{
+	return Cipher{
 		key: key,
 	}
 }
 
-func (e Encoder) Encode(b []byte) []byte {
+func (e Cipher) Encrypt(b []byte) []byte {
 	msg := BitsetFromBytes(b)
 	bits := BitsetFromSize(64)
 	for i := range initPermutationTable {
@@ -54,7 +54,7 @@ func buildByte(ns ...byte) byte {
 	return b
 }
 
-func (e Encoder) f(r, ki *Bitset) *Bitset {
+func (e Cipher) f(r, ki *Bitset) *Bitset {
 	extendedR := BitsetFromSize(48)
 	for i := range eBitSelection {
 		extendedR.SetVal(i, r.Nth(eBitSelection[i]-1))
@@ -85,7 +85,7 @@ func (e Encoder) f(r, ki *Bitset) *Bitset {
 	return result
 }
 
-func (e Encoder) round(r int) *Bitset {
+func (e Cipher) round(r int) *Bitset {
 	shiftOne := map[int]bool{0: true, 1: true, 8: true, 15: true}
 	shift := 0
 	for i := 0; i <= r; i++ {

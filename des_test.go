@@ -1,6 +1,7 @@
 package des
 
 import (
+	"crypto/des"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -59,7 +60,7 @@ func TestKeyEncoder(t *testing.T) {
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			require.Equal(t, tC.expected, NewEncoder(tC.key).key.Bits())
+			require.Equal(t, tC.expected, NewCipher(tC.key).key.Bits())
 		})
 	}
 }
@@ -120,7 +121,7 @@ func TestKeyRounds(t *testing.T) {
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			bits := NewEncoder(key)
+			bits := NewCipher(key)
 			require.Equal(t, tC.expected, bits.round(tC.round).Bits())
 		})
 	}
@@ -206,8 +207,110 @@ func TestF(t *testing.T) {
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			enc := Encoder{}
+			enc := Cipher{}
 			require.Equal(t, tC.expected, enc.f(tC.r(), tC.k()).Bits())
 		})
+	}
+}
+
+func TestEncoder(t *testing.T) {
+	key := []byte{
+		0b00010011,
+		0b00110100,
+		0b01010111,
+		0b01111001,
+		0b10011011,
+		0b10111100,
+		0b11011111,
+		0b11110001,
+	}
+	msg := []byte{
+		0b00000001,
+		0b00100011,
+		0b01000101,
+		0b01100111,
+		0b10001001,
+		0b10101011,
+		0b11001101,
+		0b11101111,
+	}
+
+	destTest, err := des.NewCipher(key)
+	require.NoError(t, err)
+	desNature := make([]byte, 8)
+	destTest.Encrypt(desNature, msg)
+	encoder := NewCipher(key)
+	require.Equal(t, desNature, encoder.Encrypt(msg))
+}
+
+/*
+goos: linux
+goarch: amd64
+pkg: github.com/viktorkomarov/des
+BenchmarkStdDESEncoder-16    	  550294	      1838 ns/op	     264 B/op	       4 allocs/op
+*/
+func BenchmarkStdDESEncoder(b *testing.B) {
+	key := []byte{
+		0b00010011,
+		0b00110100,
+		0b01010111,
+		0b01111001,
+		0b10011011,
+		0b10111100,
+		0b11011111,
+		0b11110001,
+	}
+	msg := []byte{
+		0b00000001,
+		0b00100011,
+		0b01000101,
+		0b01100111,
+		0b10001001,
+		0b10101011,
+		0b11001101,
+		0b11101111,
+	}
+
+	for i := 0; i < b.N; i++ {
+		destTest, err := des.NewCipher(key)
+		if err != nil {
+			b.Fail()
+		}
+
+		desNature := make([]byte, 8)
+		destTest.Encrypt(desNature, msg)
+	}
+}
+
+/*
+goos: linux
+goarch: amd64
+pkg: github.com/viktorkomarov/des
+BenchmarkMyDESEncoder-16    	   10821	    111551 ns/op	   10320 B/op	     615 allocs/op
+*/
+func BenchmarkMyDESEncoder(b *testing.B) {
+	key := []byte{
+		0b00010011,
+		0b00110100,
+		0b01010111,
+		0b01111001,
+		0b10011011,
+		0b10111100,
+		0b11011111,
+		0b11110001,
+	}
+	msg := []byte{
+		0b00000001,
+		0b00100011,
+		0b01000101,
+		0b01100111,
+		0b10001001,
+		0b10101011,
+		0b11001101,
+		0b11101111,
+	}
+
+	for i := 0; i < b.N; i++ {
+		NewCipher(key).Encrypt(msg)
 	}
 }
