@@ -314,3 +314,32 @@ func BenchmarkMyDESEncoder(b *testing.B) {
 		NewCipher(key).Encrypt(msg)
 	}
 }
+
+func TestDecrypt(t *testing.T) {
+	key := []byte{
+		0b00010011,
+		0b00110100,
+		0b01010111,
+		0b01111001,
+		0b10011011,
+		0b10111100,
+		0b11011111,
+		0b11110001,
+	}
+	msg := []byte{
+		0b00000001,
+		0b00100011,
+		0b01000101,
+		0b01100111,
+		0b10001001,
+		0b10101011,
+		0b11001101,
+		0b11101111,
+	}
+
+	d, err := des.NewCipher(key)
+	require.NoError(t, err)
+	enc := make([]byte, 8)
+	d.Encrypt(enc, msg)
+	require.Equal(t, msg, NewCipher(key).Decrypt(enc))
+}

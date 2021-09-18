@@ -17,15 +17,28 @@ func NewCipher(keySet []byte) Cipher {
 }
 
 func (e Cipher) Encrypt(b []byte) []byte {
-	msg := BitsetFromBytes(b)
+	return e.do(b, 0, 16)
+}
+
+func (e Cipher) Decrypt(msg []byte) []byte {
+	return e.do(msg, 15, -1)
+}
+
+func (e Cipher) do(payload []byte, from, to int) []byte {
+	msg := BitsetFromBytes(payload)
 	bits := BitsetFromSize(64)
 	for i := range initPermutationTable {
 		bits.SetVal(i, msg.Nth(initPermutationTable[i]-1))
 	}
 
 	l, r := bits.Subset(0, 32), bits.Subset(32, 64)
-	for i := 0; i < 16; i++ {
+	for i := from; i != to; {
 		l, r = r, l.XOR(e.f(r, e.round(i)))
+		if from < to {
+			i++
+		} else {
+			i--
+		}
 	}
 	l, r = r, l
 
