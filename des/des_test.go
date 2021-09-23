@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"github.com/viktorkomarov/crypto/bitset"
 )
 
 func TestKeyEncoder(t *testing.T) {
@@ -169,13 +170,13 @@ func TestBuildByte(t *testing.T) {
 func TestF(t *testing.T) {
 	testCases := []struct {
 		desc     string
-		r        func() *Bitset
-		k        func() *Bitset
+		r        func() *bitset.Set
+		k        func() *bitset.Set
 		expected []byte
 	}{
 		{
 			desc: "it works#1",
-			r: func() *Bitset {
+			r: func() *bitset.Set {
 				bits := []byte{
 					0b11110000,
 					0b10101010,
@@ -183,9 +184,9 @@ func TestF(t *testing.T) {
 					0b10101010,
 				}
 
-				return BitsetFromBytes(bits)
+				return bitset.SetFromBytes(bits)
 			},
-			k: func() *Bitset {
+			k: func() *bitset.Set {
 				bits := []byte{
 					0b00011011,
 					0b00000010,
@@ -195,7 +196,7 @@ func TestF(t *testing.T) {
 					0b01110010,
 				}
 
-				return BitsetFromBytes(bits)
+				return bitset.SetFromBytes(bits)
 			},
 			expected: []byte{
 				0b00100011,

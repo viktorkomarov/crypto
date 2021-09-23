@@ -1,4 +1,4 @@
-package des
+package bitset
 
 import (
 	"testing"
@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestBitsetNth(t *testing.T) {
+func TestSetNth(t *testing.T) {
 	testCases := []struct {
 		desc        string
 		buffer      []byte
@@ -59,7 +59,7 @@ func TestBitsetNth(t *testing.T) {
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			bits := BitsetFromBytes(tC.buffer)
+			bits := SetFromBytes(tC.buffer)
 
 			for nth, val := range tC.expectedMap {
 				require.Equal(t, val, bits.Nth(nth))
@@ -92,7 +92,7 @@ func TestSetVal(t *testing.T) {
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			bits := BitsetFromBytes(tC.buffer)
+			bits := SetFromBytes(tC.buffer)
 
 			for key, val := range tC.setter {
 				bits.SetVal(key, val)
@@ -127,7 +127,7 @@ func TestSetNewVal(t *testing.T) {
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			bits := BitsetFromSize(tC.size)
+			bits := SetFromSize(tC.size)
 			for _, val := range tC.setter {
 				bits.SetVal(val, 1)
 			}
@@ -184,7 +184,7 @@ func TestLeftRotate(t *testing.T) {
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			bits := BitsetFromBytes(tC.args)
+			bits := SetFromBytes(tC.args)
 			require.Equal(t, tC.expected, bits.LeftRotate(tC.shift).Bits())
 		})
 	}
@@ -193,28 +193,28 @@ func TestLeftRotate(t *testing.T) {
 func TestXOR(t *testing.T) {
 	testCases := []struct {
 		desc           string
-		leftOperand    func() *Bitset
-		rightOperand   func() *Bitset
-		expectedResult func() *Bitset
+		leftOperand    func() *Set
+		rightOperand   func() *Set
+		expectedResult func() *Set
 	}{
 		{
 			desc: "all 0 and 1",
-			leftOperand: func() *Bitset {
-				bits := BitsetFromSize(47)
+			leftOperand: func() *Set {
+				bits := SetFromSize(47)
 				for i := 0; i < 47; i++ {
 					bits.SetVal(i, 0)
 				}
 				return bits
 			},
-			rightOperand: func() *Bitset {
-				bits := BitsetFromSize(149)
+			rightOperand: func() *Set {
+				bits := SetFromSize(149)
 				for i := 0; i < 149; i++ {
 					bits.SetVal(i, 1)
 				}
 				return bits
 			},
-			expectedResult: func() *Bitset {
-				bits := BitsetFromSize(149)
+			expectedResult: func() *Set {
+				bits := SetFromSize(149)
 				for i := 0; i < 149; i++ {
 					bits.SetVal(i, 1)
 				}
@@ -223,35 +223,35 @@ func TestXOR(t *testing.T) {
 		},
 		{
 			desc: "it works#1",
-			leftOperand: func() *Bitset {
-				bits := BitsetFromSize(10)
+			leftOperand: func() *Set {
+				bits := SetFromSize(10)
 				for i := 0; i < 10; i++ {
 					bits.SetVal(i, byte(i%2))
 				}
 				return bits
 			},
-			rightOperand: func() *Bitset {
-				bits := BitsetFromSize(10)
+			rightOperand: func() *Set {
+				bits := SetFromSize(10)
 				for i := 0; i < 10; i++ {
 					bits.SetVal(i, byte(i%2))
 				}
 				return bits
 			},
-			expectedResult: func() *Bitset {
-				return BitsetFromSize(10)
+			expectedResult: func() *Set {
+				return SetFromSize(10)
 			},
 		},
 		{
 			desc: "it works#2",
-			leftOperand: func() *Bitset {
-				bits := BitsetFromSize(10)
+			leftOperand: func() *Set {
+				bits := SetFromSize(10)
 				for i := 0; i < 10; i++ {
 					bits.SetVal(i, byte(i%2))
 				}
 				return bits
 			},
-			rightOperand: func() *Bitset {
-				bits := BitsetFromSize(10)
+			rightOperand: func() *Set {
+				bits := SetFromSize(10)
 				for i := 0; i < 10; i++ {
 					if i%2 == 0 {
 						bits.SetVal(i, 1)
@@ -261,8 +261,8 @@ func TestXOR(t *testing.T) {
 				}
 				return bits
 			},
-			expectedResult: func() *Bitset {
-				bits := BitsetFromSize(10)
+			expectedResult: func() *Set {
+				bits := SetFromSize(10)
 				for i := 0; i < 10; i++ {
 					bits.SetVal(i, 1)
 				}

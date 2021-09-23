@@ -1,4 +1,4 @@
-module github.com/viktorkomarov/des
+module github.com/viktorkomarov/crypto
 
 go 1.15
 

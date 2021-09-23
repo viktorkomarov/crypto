@@ -1,14 +1,18 @@
 package des
 
+import (
+	"github.com/viktorkomarov/crypto/bitset"
+)
+
 type Cipher struct {
-	key *Bitset
+	key *bitset.Set
 }
 
 func NewCipher(keySet []byte) Cipher {
-	bitset := BitsetFromBytes(keySet)
-	key := BitsetFromSize(56)
+	set := bitset.SetFromBytes(keySet)
+	key := bitset.SetFromSize(56)
 	for i := 0; i < 56; i++ {
-		key.SetVal(i, bitset.Nth(keyInitTable[i]-1))
+		key.SetVal(i, set.Nth(keyInitTable[i]-1))
 	}
 
 	return Cipher{
@@ -25,8 +29,8 @@ func (e Cipher) Decrypt(msg []byte) []byte {
 }
 
 func (e Cipher) do(payload []byte, from, to int) []byte {
-	msg := BitsetFromBytes(payload)
-	bits := BitsetFromSize(64)
+	msg := bitset.SetFromBytes(payload)
+	bits := bitset.SetFromSize(64)
 	for i := range initPermutationTable {
 		bits.SetVal(i, msg.Nth(initPermutationTable[i]-1))
 	}
@@ -42,7 +46,7 @@ func (e Cipher) do(payload []byte, from, to int) []byte {
 	}
 	l, r = r, l
 
-	result := BitsetFromSize(64)
+	result := bitset.SetFromSize(64)
 	for i := range initPermutatuinReverseTable {
 		from := initPermutatuinReverseTable[i] - 1
 		if from < 32 {
@@ -67,14 +71,14 @@ func buildByte(ns ...byte) byte {
 	return b
 }
 
-func (e Cipher) f(r, ki *Bitset) *Bitset {
-	extendedR := BitsetFromSize(48)
+func (e Cipher) f(r, ki *bitset.Set) *bitset.Set {
+	extendedR := bitset.SetFromSize(48)
 	for i := range eBitSelection {
 		extendedR.SetVal(i, r.Nth(eBitSelection[i]-1))
 	}
 	ki = ki.XOR(extendedR)
 
-	sBoxed := BitsetFromSize(32)
+	sBoxed := bitset.SetFromSize(32)
 	for i := 0; i < 8; i++ {
 		s := ki.Subset(i*6, i*6+6)
 		l := buildByte(s.Nth(0), s.Nth(5))
@@ -91,14 +95,14 @@ func (e Cipher) f(r, ki *Bitset) *Bitset {
 		}
 	}
 
-	result := BitsetFromSize(32)
+	result := bitset.SetFromSize(32)
 	for i := range pBitMutation {
 		result.SetVal(i, sBoxed.Nth(pBitMutation[i]-1))
 	}
 	return result
 }
 
-func (e Cipher) round(r int) *Bitset {
+func (e Cipher) round(r int) *bitset.Set {
 	shiftOne := map[int]bool{0: true, 1: true, 8: true, 15: true}
 	shift := 0
 	for i := 0; i <= r; i++ {
@@ -112,7 +116,7 @@ func (e Cipher) round(r int) *Bitset {
 	c := e.key.Subset(0, 28).LeftRotate(shift)
 	d := e.key.Subset(28, 56).LeftRotate(shift)
 
-	result := BitsetFromSize(48)
+	result := bitset.SetFromSize(48)
 	for i := range keyRoundTable {
 		from := keyRoundTable[i] - 1
 		if from < 28 {

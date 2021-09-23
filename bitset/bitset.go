@@ -1,4 +1,4 @@
-package des
+package bitset
 
 import (
 	"fmt"
@@ -16,31 +16,31 @@ func or1(size int) int {
 }
 
 // think about LittleEndian
-type Bitset struct {
+type Set struct {
 	sz     int
 	buffer []byte
 }
 
-func BitsetFromSize(size int) *Bitset {
-	return &Bitset{
+func SetFromSize(size int) *Set {
+	return &Set{
 		sz:     size,
 		buffer: make([]byte, or1(size)),
 	}
 }
 
-func BitsetFromBytes(bytes []byte) *Bitset {
-	return &Bitset{
+func SetFromBytes(bytes []byte) *Set {
+	return &Set{
 		sz:     len(bytes) * byteSize,
 		buffer: bytes,
 	}
 }
 
-func (b *Bitset) Nth(n int) byte {
+func (b *Set) Nth(n int) byte {
 	num := b.buffer[n/byteSize]
 	return (num >> (byteSize - (n % byteSize) - 1)) & 1
 }
 
-func (b *Bitset) nthOr0(n int) byte {
+func (b *Set) nthOr0(n int) byte {
 	if n >= b.Size() {
 		return 0
 	}
@@ -48,7 +48,7 @@ func (b *Bitset) nthOr0(n int) byte {
 	return b.Nth(n)
 }
 
-func (b *Bitset) SetVal(to int, val byte) {
+func (b *Set) SetVal(to int, val byte) {
 	if b.sz < to {
 		b.sz = to
 	}
@@ -72,16 +72,16 @@ func (b *Bitset) SetVal(to int, val byte) {
 	}
 }
 
-func (b *Bitset) Size() int {
+func (b *Set) Size() int {
 	return b.sz
 }
 
-func (b *Bitset) cap() int {
+func (b *Set) cap() int {
 	return len(b.buffer) * 8
 }
 
-func (b *Bitset) Subset(from, to int) *Bitset {
-	set := BitsetFromSize(to - from) // check from > to
+func (b *Set) Subset(from, to int) *Set {
+	set := SetFromSize(to - from) // check from > to
 	i := 0
 	for ; from < to; from++ {
 		set.SetVal(i, b.Nth(from))
@@ -91,9 +91,9 @@ func (b *Bitset) Subset(from, to int) *Bitset {
 	return set
 }
 
-func (b *Bitset) LeftRotate(shift int) *Bitset {
+func (b *Set) LeftRotate(shift int) *Set {
 	shift %= b.sz
-	bits := BitsetFromSize(b.sz)
+	bits := SetFromSize(b.sz)
 
 	shifted := make([]byte, 0)
 	for i := 0; i < shift; i++ {
@@ -111,13 +111,13 @@ func (b *Bitset) LeftRotate(shift int) *Bitset {
 	return bits
 }
 
-func (b *Bitset) Bits() []byte {
+func (b *Set) Bits() []byte {
 	bits := make([]byte, b.sz/8)
 	copy(bits, b.buffer)
 	return bits
 }
 
-func (b *Bitset) String() string {
+func (b *Set) String() string {
 	var builder strings.Builder
 
 	for i := 0; i < b.sz; i++ {
@@ -127,13 +127,13 @@ func (b *Bitset) String() string {
 	return builder.String()
 }
 
-func (b *Bitset) XOR(bits *Bitset) *Bitset {
+func (b *Set) XOR(bits *Set) *Set {
 	max, min := b, bits
 	if max.Size() < min.Size() {
 		max, min = min, max
 	}
 
-	result := BitsetFromSize(max.Size())
+	result := SetFromSize(max.Size())
 	for i := 0; i < max.Size(); i++ {
 		result.SetVal(i, (max.Nth(i) ^ min.nthOr0(i)))
 	}
