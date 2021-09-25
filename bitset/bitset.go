@@ -140,3 +140,14 @@ func (b *Set) XOR(bits *Set) *Set {
 
 	return result
 }
+
+func (b *Set) IndexOfOne() []int {
+	result := make([]int, 0, b.sz)
+	for i := b.Size() - 1; i >= 0; i-- {
+		if b.Nth(i) == 1 {
+			result = append(result, i)
+		}
+	}
+
+	return result
+}

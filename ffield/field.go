@@ -3,16 +3,17 @@ package ffield
 import "github.com/viktorkomarov/crypto/bitset"
 
 func Mul(a, b *bitset.Set) *bitset.Set {
-	result := bitset.SetFromSize(a.Size() + b.Size())
-	for i := a.Size() - 1; i >= 0; i-- {
-		if a.Nth(i) == 1 {
-			for j := b.Size() - 1; j >= 0; j-- {
-				if b.Nth(j) == 1 {
-					result.SetVal(i+j, result.Nth(i+j)^1)
-				}
-			}
+	aOnes, bOnes := a.IndexOfOne(), b.IndexOfOne()
+	if len(aOnes) == 0 || len(bOnes) == 0 {
+		return bitset.SetFromSize(0)
+	}
+
+	mul := bitset.SetFromSize(aOnes[0] + bOnes[0])
+	for _, ai := range aOnes {
+		for _, bi := range bOnes {
+			mul.SetVal(ai+bi, mul.Nth(ai+bi)^1)
 		}
 	}
 
-	return result
+	return mul
 }

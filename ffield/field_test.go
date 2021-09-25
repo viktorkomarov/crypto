@@ -38,6 +38,12 @@ func TestMul(t *testing.T) {
 			b:        bitset.SetFromBytes([]byte{0b10100000}),
 			expected: bitset.SetFromBytes([]byte{0b10001000}),
 		},
+		{
+			desc:     "(x^3+x^2+1)*(x^2+x)=x^5+x^3+x^2+x",
+			a:        bitset.SetFromBytes([]byte{0b10110000}),
+			b:        bitset.SetFromBytes([]byte{0b01100000}),
+			expected: bitset.SetFromBytes([]byte{0b01110100}),
+		},
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
