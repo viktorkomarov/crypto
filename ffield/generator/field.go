@@ -1,4 +1,4 @@
-package ffield
+package main
 
 import (
 	"math"
@@ -22,6 +22,10 @@ func newPair(l, r *bitset.Set) pair {
 	}
 }
 
+func (p pair) String() string {
+	return p.left + "_" + p.right
+}
+
 type GF2 struct {
 	degree int
 	fields map[string]*bitset.Set
@@ -34,14 +38,19 @@ func NewGF2(degree int) GF2 {
 	}
 }
 
-func (g *GF2) GenerateSumTable(field map[string]*bitset.Set) map[pair]*bitset.Set {
-	sumTable := make(map[pair]*bitset.Set)
+// change to copy
+func (g *GF2) Field() map[string]*bitset.Set {
+	return g.fields
+}
+
+func (g *GF2) GenerateSumTable(field map[string]*bitset.Set) map[string]*bitset.Set {
+	sumTable := make(map[string]*bitset.Set)
 
 	for _, lSet := range field {
 		for _, rSet := range field {
 			pr := newPair(lSet, rSet)
-			if _, ok := sumTable[pr]; !ok {
-				sumTable[pr] = lSet.XOR(rSet)
+			if _, ok := sumTable[pr.String()]; !ok {
+				sumTable[pr.String()] = lSet.XOR(rSet)
 			}
 		}
 	}
@@ -49,14 +58,14 @@ func (g *GF2) GenerateSumTable(field map[string]*bitset.Set) map[pair]*bitset.Se
 	return sumTable
 }
 
-func (g *GF2) GenerateMulTable(field map[string]*bitset.Set) map[pair]*bitset.Set {
-	mulTable := make(map[pair]*bitset.Set)
+func (g *GF2) GenerateMulTable(field map[string]*bitset.Set) map[string]*bitset.Set {
+	mulTable := make(map[string]*bitset.Set)
 
 	for _, lSet := range field {
 		for _, rSet := range field {
 			pr := newPair(lSet, rSet)
-			if _, ok := mulTable[pr]; !ok {
-				mulTable[pr] = g.DivRem(g.Mul(lSet, rSet), nil)
+			if _, ok := mulTable[pr.String()]; !ok {
+				mulTable[pr.String()] = g.DivRem(g.Mul(lSet, rSet), nil)
 			}
 		}
 	}

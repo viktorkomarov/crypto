@@ -111,6 +111,7 @@ func (b *Set) LeftRotate(shift int) *Set {
 	return bits
 }
 
+// incorrect
 func (b *Set) Bits() []byte {
 	bits := make([]byte, b.sz/8)
 	copy(bits, b.buffer)

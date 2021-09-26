@@ -1,4 +1,4 @@
-package ffield
+package main
 
 import (
 	"testing"
@@ -47,7 +47,8 @@ func TestMul(t *testing.T) {
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			mul := Mul(tC.a, tC.b)
+			g := GF2{}
+			mul := g.Mul(tC.a, tC.b)
 			for i := 0; i < tC.expected.Size(); i++ {
 				require.Equalf(t, tC.expected.Nth(i), mul.Nth(i), "position %d", i)
 			}
@@ -69,7 +70,7 @@ func TestGenerate(t *testing.T) {
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			require.Equal(t, tC.count, len(GenerateGF2(8)))
+			require.Equal(t, tC.count, len(generateGF2(8)))
 		})
 	}
 }
