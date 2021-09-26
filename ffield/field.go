@@ -56,7 +56,7 @@ func (g *GF2) GenerateMulTable(field map[string]*bitset.Set) map[pair]*bitset.Se
 		for _, rSet := range field {
 			pr := newPair(lSet, rSet)
 			if _, ok := mulTable[pr]; !ok {
-				mulTable[pr] = Div(Mul(lSet, rSet), nil)
+				mulTable[pr] = g.DivRem(g.Mul(lSet, rSet), nil)
 			}
 		}
 	}
