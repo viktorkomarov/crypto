@@ -54,3 +54,22 @@ func TestMul(t *testing.T) {
 		})
 	}
 }
+
+func TestGenerate(t *testing.T) {
+	testCases := []struct {
+		desc   string
+		degree int
+		count  int
+	}{
+		{
+			desc:   "it works",
+			degree: 8,
+			count:  256,
+		},
+	}
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			require.Equal(t, tC.count, len(GenerateGF2(8)))
+		})
+	}
+}
