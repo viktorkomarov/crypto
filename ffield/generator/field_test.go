@@ -74,3 +74,27 @@ func TestGenerate(t *testing.T) {
 		})
 	}
 }
+
+func TestMulDivRem(t *testing.T) {
+	testCases := []struct {
+		desc     string
+		a        *bitset.Set
+		b        *bitset.Set
+		c        *bitset.Set
+		expected *bitset.Set
+	}{
+		{
+			desc:     "11*11=10",
+			a:        bitset.SetFromBytes([]byte{0b11000000}),
+			b:        bitset.SetFromBytes([]byte{0b11000000}),
+			c:        bitset.SetFromBytes([]byte{gf2_2}),
+			expected: bitset.SetFromBytes([]byte{0b10000000}),
+		},
+	}
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			gf := GF2{}
+			require.Equal(t, tC.expected, gf.DivRem(gf.Mul(tC.a, tC.b), tC.c))
+		})
+	}
+}

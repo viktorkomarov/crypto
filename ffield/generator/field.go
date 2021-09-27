@@ -11,6 +11,8 @@ type pair struct {
 	right string
 }
 
+const gf2_2 = 0b11100000
+
 func newPair(l, r *bitset.Set) pair {
 	if r.String() < l.String() {
 		l, r = r, l
@@ -65,7 +67,7 @@ func (g *GF2) GenerateMulTable(field map[string]*bitset.Set) map[string]*bitset.
 		for _, rSet := range field {
 			pr := newPair(lSet, rSet)
 			if _, ok := mulTable[pr.String()]; !ok {
-				mulTable[pr.String()] = g.DivRem(g.Mul(lSet, rSet), nil)
+				mulTable[pr.String()] = g.DivRem(g.Mul(lSet, rSet), bitset.SetFromBytes([]byte{gf2_2}))
 			}
 		}
 	}
