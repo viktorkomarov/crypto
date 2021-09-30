@@ -116,14 +116,27 @@ func (g *GF2) DivRem(dividend, divider *bitset.Set) *bitset.Set {
 		}
 	}
 
-	rem := bitset.SetFromSize(g.degree)
-	for div1[0] > div2[0] {
-		diff := div1[0] - div2[0]
-		rem.SetVal(diff, 1)
-		temp := bitset.SetFromSize(g.degree)
-		temp.SetVal(diff, 1)
-		div1 = g.Mul(divider, temp).IndexOfOne()
+	return g.decreaseDegree(div1[0], dividend, divider)
+}
+
+// a / b , maxi - index one set of a
+func (g *GF2) decreaseDegree(maxi int, a, b *bitset.Set) *bitset.Set {
+	if maxi < g.degree {
+		return a
 	}
 
-	return rem
+	diff := bitset.SetFromSize(g.degree)
+	diff.SetVal(maxi-g.degree, 1)
+	diff = g.Mul(diff, b)
+	diff.SetVal(maxi, 0)
+
+	result := bitset.SetFromSize(g.degree)
+	indexOfOne := diff.IndexOfOne()
+	for _, idx := range indexOfOne {
+		setter := bitset.SetFromSize(g.degree)
+		setter.SetVal(idx, 1)
+		result = result.XOR(g.decreaseDegree(idx, setter, b))
+	}
+
+	return result
 }
