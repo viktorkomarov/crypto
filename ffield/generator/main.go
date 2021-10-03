@@ -7,6 +7,8 @@ import (
 	"log"
 	"os"
 	"text/template"
+
+	"github.com/viktorkomarov/crypto/ffield"
 )
 
 type Cfg struct {
@@ -36,8 +38,8 @@ var templateTable string
 type TemplateArgs struct {
 	PackageName string
 	Degree      uint
-	SumOfTable  map[Pair]uint64
-	MulOfTable  map[Pair]uint64
+	SumOfTable  map[ffield.Pair]uint64
+	MulOfTable  map[ffield.Pair]uint64
 }
 
 func main() {
@@ -54,7 +56,13 @@ func main() {
 		log.Fatalf("can't create gf %v\n", err)
 	}
 
-	err = tableTmpl.Execute(os.Stdout, TemplateArgs{
+	file, err := os.Create(cfg.Path)
+	if err != nil {
+		log.Fatalf("can't create file %v\n", err)
+	}
+	defer file.Close()
+
+	err = tableTmpl.Execute(file, TemplateArgs{
 		PackageName: cfg.PackageName,
 		Degree:      cfg.Degree,
 		SumOfTable:  gf.generateSumTable(),

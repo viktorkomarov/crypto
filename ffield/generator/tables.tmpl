@@ -2,15 +2,17 @@
 package {{ .PackageName }}
 
 func SumGF{{ .Degree }}(a, b uint64) uint64 {
-    return sumTableGfDegree[newPair(a,b)]
+    return sumTableGfDegree{{ .Degree }}[NewPair(a,b)]
 }
 
 func MulGF{{ .Degree }}(a, b uint64) uint64 {
-    return sumTableGfDegree[newPair(a,b)]
+    return mulTableGfDegree{{ .Degree }}[NewPair(a,b)]
 }
 
 var sumTableGfDegree{{ .Degree }} = map[Pair]uint64{
-    {{range $key, $val := .SumOfTable}}
-        Pair{ L: {{ $key.L }}, R:  {{ $key.R }} }: {{ $val }}, 
-    {{end}}
+    {{range $key, $val := .SumOfTable}}Pair{ L: {{ $key.L }}, R:  {{ $key.R }} }: {{ $val }},{{end}}
+}
+
+var mulTableGfDegree{{ .Degree }} = map[Pair]uint64{
+    {{range $key, $val := .MulOfTable}}Pair{ L: {{ $key.L }}, R:  {{ $key.R }} }: {{ $val }},{{end}}
 }

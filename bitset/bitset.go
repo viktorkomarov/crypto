@@ -49,7 +49,7 @@ func (b *Set) Nth(n int) byte {
 }
 
 func (b *Set) nthOr0(n int) byte {
-	if n >= b.Size() {
+	if n >= len(b.buffer)*8 {
 		return 0
 	}
 
@@ -129,7 +129,7 @@ func (b *Set) Bits() []byte {
 func (b *Set) String() string {
 	var builder strings.Builder
 
-	for i := 0; i < b.sz; i++ {
+	for i := 0; i < len(b.buffer)*8; i++ {
 		builder.WriteString(fmt.Sprintf("%d", b.Nth(i)))
 	}
 
@@ -152,8 +152,8 @@ func (b *Set) XOR(bits *Set) *Set {
 
 func (b *Set) IndexOfOne() []int {
 	result := make([]int, 0, b.sz)
-	for i := b.Size() - 1; i >= 0; i-- {
-		if b.Nth(i) == 1 {
+	for i := b.Size() * 8; i >= 0; i-- {
+		if b.nthOr0(i) == 1 {
 			result = append(result, i)
 		}
 	}
@@ -175,4 +175,12 @@ func (b *Set) Mul(a *Set) *Set {
 	}
 
 	return mul
+}
+
+func (b *Set) BuildUint64() uint64 {
+	var result uint64
+	for i := 0; i < 64; i++ {
+		result |= (uint64(b.nthOr0(i)) << i)
+	}
+	return result
 }

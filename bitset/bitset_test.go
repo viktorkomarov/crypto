@@ -324,3 +324,28 @@ func TestMul(t *testing.T) {
 		})
 	}
 }
+
+func TestBuildUint64(t *testing.T) {
+	testCases := []struct {
+		desc string
+		val  uint64
+	}{
+		{
+			desc: "178",
+			val:  178,
+		},
+		{
+			desc: "1010",
+			val:  1010,
+		},
+		{
+			desc: "0",
+			val:  0,
+		},
+	}
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			require.Equal(t, tC.val, SetFromNum(tC.val).BuildUint64())
+		})
+	}
+}
