@@ -7,19 +7,17 @@ import (
 	"log"
 	"os"
 	"text/template"
-
-	"github.com/viktorkomarov/crypto/bitset"
 )
 
 type Cfg struct {
-	Degree      int
+	Degree      uint
 	Path        string
 	PackageName string
 }
 
 func parseConfig() Cfg {
 	cfg := Cfg{}
-	flag.IntVar(&cfg.Degree, "degree", 0, "gf(2^degree)")
+	flag.UintVar(&cfg.Degree, "degree", 0, "gf(2^degree)")
 	flag.StringVar(&cfg.Path, "path", "", "path to output")
 	flag.StringVar(&cfg.PackageName, "package", "main", "name of generated file")
 	flag.Parse()
@@ -37,8 +35,9 @@ var templateTable string
 
 type TemplateArgs struct {
 	PackageName string
-	Degree      int
-	SumOfTable  map[string]*bitset.Set
+	Degree      uint
+	SumOfTable  map[Pair]uint64
+	MulOfTable  map[Pair]uint64
 }
 
 func main() {
@@ -50,15 +49,16 @@ func main() {
 		log.Fatal(err)
 	}
 
-	gf := NewGF2(cfg.Degree)
-	sumTables := gf.GenerateSumTable(gf.Field())
-	for _, val := range sumTables {
-		fmt.Printf("%+v", val.Bits())
+	gf, err := NewGF2(cfg.Degree)
+	if err != nil {
+		log.Fatalf("can't create gf %v\n", err)
 	}
+
 	err = tableTmpl.Execute(os.Stdout, TemplateArgs{
 		PackageName: cfg.PackageName,
 		Degree:      cfg.Degree,
-		SumOfTable:  sumTables,
+		SumOfTable:  gf.generateSumTable(),
+		MulOfTable:  gf.generateMulTable(),
 	})
 	if err != nil {
 		log.Fatal(err)

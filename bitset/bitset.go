@@ -35,6 +35,14 @@ func SetFromBytes(bytes []byte) *Set {
 	}
 }
 
+func SetFromNum(val uint64) *Set {
+	set := SetFromSize(8)
+	for i := 0; i < 64; i++ {
+		set.SetVal(i, byte((val>>i)&1))
+	}
+	return set
+}
+
 func (b *Set) Nth(n int) byte {
 	num := b.buffer[n/byteSize]
 	return (num >> (byteSize - (n % byteSize) - 1)) & 1
@@ -151,4 +159,20 @@ func (b *Set) IndexOfOne() []int {
 	}
 
 	return result
+}
+
+func (b *Set) Mul(a *Set) *Set {
+	aOnes, bOnes := a.IndexOfOne(), b.IndexOfOne()
+	if len(aOnes) == 0 || len(bOnes) == 0 {
+		return SetFromSize(0)
+	}
+
+	mul := SetFromSize(aOnes[0] + bOnes[0])
+	for _, ai := range aOnes {
+		for _, bi := range bOnes {
+			mul.SetVal(ai+bi, mul.Nth(ai+bi)^1)
+		}
+	}
+
+	return mul
 }

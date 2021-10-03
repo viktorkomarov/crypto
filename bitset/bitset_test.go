@@ -276,3 +276,51 @@ func TestXOR(t *testing.T) {
 		})
 	}
 }
+
+func TestMul(t *testing.T) {
+	testCases := []struct {
+		desc     string
+		a        *Set
+		b        *Set
+		expected *Set
+	}{
+		{
+			desc:     "(x^3+x+1)*(x^2+x+1)=x^5+x^4+1",
+			a:        SetFromBytes([]byte{0b11010000}),
+			b:        SetFromBytes([]byte{0b11100000}),
+			expected: SetFromBytes([]byte{0b10001100}),
+		},
+		{
+			desc:     "(x^2+x+1)*(x^3+x+1)=x^5+x^4+1",
+			b:        SetFromBytes([]byte{0b11010000}),
+			a:        SetFromBytes([]byte{0b11100000}),
+			expected: SetFromBytes([]byte{0b10001100}),
+		},
+		{
+			desc:     "(x^5+x^3+x^2+1)*1=(x^5+x^3+x^2+1)",
+			a:        SetFromBytes([]byte{0b10110100}),
+			b:        SetFromBytes([]byte{0b10000000}),
+			expected: SetFromBytes([]byte{0b10110100}),
+		},
+		{
+			desc:     "(x^2+1)*(x^2+1)=(x^4+1)",
+			a:        SetFromBytes([]byte{0b10100000}),
+			b:        SetFromBytes([]byte{0b10100000}),
+			expected: SetFromBytes([]byte{0b10001000}),
+		},
+		{
+			desc:     "(x^3+x^2+1)*(x^2+x)=x^5+x^3+x^2+x",
+			a:        SetFromBytes([]byte{0b10110000}),
+			b:        SetFromBytes([]byte{0b01100000}),
+			expected: SetFromBytes([]byte{0b01110100}),
+		},
+	}
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			mul := tC.a.Mul(tC.b)
+			for i := 0; i < tC.expected.Size(); i++ {
+				require.Equalf(t, tC.expected.Nth(i), mul.Nth(i), "position %d", i)
+			}
+		})
+	}
+}
