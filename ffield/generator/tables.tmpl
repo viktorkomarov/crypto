@@ -9,10 +9,18 @@ func MulGF{{ .Degree }}(a, b uint64) uint64 {
     return mulTableGfDegree{{ .Degree }}[NewPair(a,b)]
 }
 
+func InvrGF{{ .Degree }} (a uint64) uint64 {
+    return invrTableGFDegree{{ .Degree }}[a]
+}
+
 var sumTableGfDegree{{ .Degree }} = map[Pair]uint64{
     {{range $key, $val := .SumOfTable}}Pair{ L: {{ $key.L }}, R:  {{ $key.R }} }: {{ $val }},{{end}}
 }
 
 var mulTableGfDegree{{ .Degree }} = map[Pair]uint64{
     {{range $key, $val := .MulOfTable}}Pair{ L: {{ $key.L }}, R:  {{ $key.R }} }: {{ $val }},{{end}}
+}
+
+var invrTableGFDegree{{ .Degree }} = map[uint64]uint64{
+    {{range $key, $val := .InvrOfTable}}{{ $key }} : {{ $val }},{{end}}
 }

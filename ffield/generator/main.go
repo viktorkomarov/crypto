@@ -40,6 +40,7 @@ type TemplateArgs struct {
 	Degree      uint
 	SumOfTable  map[ffield.Pair]uint64
 	MulOfTable  map[ffield.Pair]uint64
+	InvrOfTable map[uint64]uint64
 }
 
 func main() {
@@ -67,6 +68,7 @@ func main() {
 		Degree:      cfg.Degree,
 		SumOfTable:  gf.generateSumTable(),
 		MulOfTable:  gf.generateMulTable(),
+		InvrOfTable: gf.generateInvrTable(),
 	})
 	if err != nil {
 		log.Fatal(err)

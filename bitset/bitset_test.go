@@ -314,6 +314,12 @@ func TestMul(t *testing.T) {
 			b:        SetFromBytes([]byte{0b01100000}),
 			expected: SetFromBytes([]byte{0b01110100}),
 		},
+		{
+			desc:     "(x^7+x^6+x)*(x^5+x^3+x^2+x+1)",
+			a:        SetFromBytes([]byte{0b01000011}),
+			b:        SetFromBytes([]byte{0b11110100}),
+			expected: SetFromBytes([]byte{0b01111000, 0b00111000}),
+		},
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
@@ -341,6 +347,10 @@ func TestBuildUint64(t *testing.T) {
 		{
 			desc: "0",
 			val:  0,
+		},
+		{
+			desc: "1",
+			val:  1,
 		},
 	}
 	for _, tC := range testCases {
