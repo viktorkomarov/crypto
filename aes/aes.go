@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/viktorkomarov/crypto/bitset"
+	"github.com/viktorkomarov/crypto/ffield"
 )
 
 type Cipher struct {
@@ -40,6 +41,13 @@ func NewCipher(key []byte) (c Cipher, err error) {
 	return
 }
 
-func sBox(b uint8) uint8 {
-
+func sBox(a uint8) uint8 {
+	invr := uint8(ffield.InvrGF8(uint64(a)))
+	b := bitset.SetFromUint8(invr)
+	c := bitset.SetFromUint8(0b01100011)
+	result := bitset.SetFromUint8(0)
+	for i := 0; i < 8; i++ {
+		result.SetVal(i, b.Nth(i)^b.Nth((i+4)%8)^b.Nth((i+5)%8)^b.Nth((i+6)%8)^b.Nth((i+7)%8)^c.Nth(i))
+	}
+	return result.BuildUint8()
 }

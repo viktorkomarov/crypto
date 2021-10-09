@@ -2,7 +2,6 @@ package aes
 
 import (
 	"github.com/viktorkomarov/crypto/bitset"
-	"github.com/viktorkomarov/crypto/ffield"
 )
 
 type Word uint32
@@ -35,6 +34,7 @@ func (k *keyScheduler128) Next() bool {
 }
 
 func (k *keyScheduler128) Subkey() []Word {
+	k.currRound++
 	curr := make([]Word, 4)
 	copy(curr, k.words)
 	k.words[0] = k.words[0] ^ k.g(k.words[3])
@@ -45,15 +45,27 @@ func (k *keyScheduler128) Subkey() []Word {
 }
 
 func (k *keyScheduler128) g(w Word) Word {
-	w := k.rotWord(w)
+	w = k.rotWord(w)
+	w = k.subWord(w)
+	return w
 }
 
 func (k *keyScheduler128) rotWord(w Word) Word {
-	set := bitset.SetFromUin32(uint32(w))
+	set := bitset.SetFromUint32(uint32(w))
 	set = set.LeftRotate(8)
 	return Word(set.BuildUint32())
 }
 
-func (k *keyScheduler128) sBox(w Word) Word {
-	invr := ffield.InvrGF8(uint64(w))
+func (k *keyScheduler128) subWord(w Word) Word {
+	set := bitset.SetFromUint32(uint32(w))
+	a0 := sBox(set.Subset(0, 8).BuildUint8())
+	a1 := sBox(set.Subset(8, 16).BuildUint8())
+	a2 := sBox(set.Subset(16, 24).BuildUint8())
+	a3 := sBox(set.Subset(24, 32).BuildUint8())
+	return Word(bitset.SetFromBytes([]byte{a0, a1, a2, a3}).BuildUint32())
+}
+
+func (k *keyScheduler128) rCon(w Word) Word {
+	c := []uint32{0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1B, 0x36}
+	return Word(uint32(w) ^ c[k.currRound-1])
 }
