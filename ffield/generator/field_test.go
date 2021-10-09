@@ -176,3 +176,22 @@ func TestTableMul(t *testing.T) {
 		})
 	}
 }
+
+func Test(t *testing.T) {
+	testCases := []struct {
+		desc     string
+		expected int
+	}{
+		{
+			desc:     "size test",
+			expected: 255,
+		},
+	}
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			g, err := NewGF2(8)
+			require.NoError(t, err)
+			require.Equal(t, tC.expected, len(g.generateInvrTable()))
+		})
+	}
+}

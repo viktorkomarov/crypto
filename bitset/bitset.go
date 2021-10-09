@@ -43,6 +43,14 @@ func SetFromNum(val uint64) *Set {
 	return set
 }
 
+func SetFromUin32(val uint32) *Set {
+	set := SetFromSize(8)
+	for i := 0; i < 32; i++ {
+		set.SetVal(i, byte((val>>i)&1))
+	}
+	return set
+}
+
 func (b *Set) Nth(n int) byte {
 	num := b.buffer[n/byteSize]
 	return (num >> (byteSize - (n % byteSize) - 1)) & 1
@@ -181,6 +189,14 @@ func (b *Set) BuildUint64() uint64 {
 	var result uint64
 	for i := 0; i < 64; i++ {
 		result |= (uint64(b.nthOr0(i)) << i)
+	}
+	return result
+}
+
+func (b *Set) BuildUint32() uint32 {
+	var result uint32
+	for i := 0; i < 32; i++ {
+		result |= (uint32(b.nthOr0(i)) << i)
 	}
 	return result
 }
