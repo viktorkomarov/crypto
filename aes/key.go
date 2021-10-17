@@ -30,7 +30,7 @@ func newKeyScheduuler128(key []byte) *keyScheduler128 {
 }
 
 func (k *keyScheduler128) Next() bool {
-	return k.currRound < 10
+	return k.currRound <= 10
 }
 
 func (k *keyScheduler128) Subkey() []Word {
